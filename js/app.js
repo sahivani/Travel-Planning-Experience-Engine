@@ -9,6 +9,14 @@ var App = {
 
     init() {
         console.log('App: Initializing...');
+        
+        // Global error catcher
+        window.onerror = function(msg, url, line, col, error) {
+            console.error('GLOBAL ERROR:', msg, 'at', url, ':', line);
+            Ticker.setMessage(`[ERROR] System malfunction: ${msg}`);
+            return false;
+        };
+
         try {
             Configurator.init();
             ItineraryView.init();

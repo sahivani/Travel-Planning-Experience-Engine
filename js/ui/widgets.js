@@ -23,10 +23,10 @@ var Widgets = {
         this.budgetFill.style.background = budgetPct > 90 ? 'var(--color-error)' : 'var(--color-accent)';
 
         // Update Scores
-        this.headerScore.textContent = trip.scores.overall;
-        document.getElementById('score-culture').style.width = `${trip.scores.culture}%`;
-        document.getElementById('score-food').style.width = `${trip.scores.food}%`;
-        document.getElementById('score-pace').style.width = `${trip.scores.pace}%`;
+        this.headerScore.textContent = Math.round(trip.scores.overall || 0);
+        document.getElementById('score-culture').style.width = `${Math.round(trip.scores.culture || 0)}%`;
+        document.getElementById('score-food').style.width = `${Math.round(trip.scores.food || 0)}%`;
+        document.getElementById('score-pace').style.width = `${Math.round(trip.scores.pace || 0)}%`;
     },
 
     renderWeather() {
