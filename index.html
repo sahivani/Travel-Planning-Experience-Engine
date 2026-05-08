@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Planning & Experience Engine</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <div class="app-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="noise-overlay"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header glass-panel">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <h1>WanderLens</h1>
+            </div>
+            <div class="header-actions">
+                <button id="btn-share" class="btn btn-icon" title="Share Trip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
+                <button id="btn-print" class="btn btn-icon" title="Print/PDF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+                <div class="trip-score-mini">
+                    <span class="score-val" id="header-score">--</span>
+                    <span class="score-label">Score</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <main class="app-main">
+            <!-- Left: Configurator -->
+            <aside class="panel panel-left configurator glass-panel">
+                <h2>Plan Your Trip</h2>
+                <form id="trip-form">
+                    <div class="form-group">
+                        <label for="destination">Destination</label>
+                        <input type="text" id="destination" placeholder="e.g. Tokyo, Japan" autocomplete="off" required>
+                        <div id="dest-suggestions" class="suggestions-dropdown hidden"></div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date-start">Departure</label>
+                            <input type="date" id="date-start" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-end">Return</label>
+                            <input type="date" id="date-end" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="travelers">Travelers</label>
+                            <select id="travelers">
+                                <option value="solo">Solo (1)</option>
+                                <option value="couple" selected>Couple (2)</option>
+                                <option value="family">Family (4)</option>
+                                <option value="group">Group (6+)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="budget">Budget Level</label>
+                            <select id="budget">
+                                <option value="budget">Backpacker</option>
+                                <option value="mid" selected>Mid-Range</option>
+                                <option value="luxury">Luxury</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vibe & Preferences</label>
+                        <div class="tags-selector" id="vibe-tags">
+                            <button type="button" class="tag active" data-val="culture">Culture</button>
+                            <button type="button" class="tag active" data-val="food">Food</button>
+                            <button type="button" class="tag" data-val="nature">Nature</button>
+                            <button type="button" class="tag" data-val="adventure">Adventure</button>
+                            <button type="button" class="tag" data-val="relaxation">Relaxation</button>
+                            <button type="button" class="tag" data-val="nightlife">Nightlife</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pace">Trip Pace</label>
+                        <input type="range" id="pace" min="1" max="3" value="2">
+                        <div class="range-labels">
+                            <span>Slow</span>
+                            <span>Balanced</span>
+                            <span>Packed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group advanced-toggles">
+                        <label class="toggle-wrap">
+                            <input type="checkbox" id="diet-veg">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Vegetarian Options</span>
+                        </label>
+                        <label class="toggle-wrap">
+                            <input type="checkbox" id="req-acc">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Accessibility Friendly</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="btn-generate">
+                        <span>Generate Itinerary</span>
+                        <div class="spinner hidden"></div>
+                    </button>
+                </form>
+            </aside>
+
+            <!-- Center: Itinerary -->
+            <section class="panel panel-center itinerary-view">
+                <div class="itinerary-header">
+                    <h2 id="itinerary-title">Your Itinerary</h2>
+                    <div class="view-toggles">
+                        <button class="btn-icon active" data-view="compact" title="Compact View"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+                        <button class="btn-icon" data-view="detailed" title="Detailed View"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></button>
+                    </div>
+                </div>
+                
+                <div id="constraint-warnings" class="warnings-container"></div>
+                
+                <div class="itinerary-days" id="itinerary-content">
+                    <div class="empty-state">
+                        <div class="empty-icon">🌍</div>
+                        <p>Tell us your preferences to generate a personalized itinerary.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Map & Widgets -->
+            <aside class="panel panel-right widgets">
+                <div class="map-container glass-panel" id="map-wrap">
+                    <div id="map"></div>
+                </div>
+                
+                <div class="widget weather-widget glass-panel">
+                    <div class="widget-header">
+                        <h3>Forecast</h3>
+                        <span id="weather-dest">--</span>
+                    </div>
+                    <div class="weather-days" id="weather-content">
+                        <!-- Populated by JS -->
+                        <div class="empty-text">Awaiting destination...</div>
+                    </div>
+                </div>
+                
+                <div class="widget stats-widget glass-panel">
+                    <h3>Trip Overview</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-label">Est. Cost</span>
+                            <span class="stat-val" id="stat-cost">$0</span>
+                            <div class="progress-bar"><div class="fill" id="budget-fill" style="width: 0%"></div></div>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Activities</span>
+                            <span class="stat-val" id="stat-count">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="radar-container">
+                        <!-- Simple CSS radar representation -->
+                        <div class="score-bars">
+                            <div class="score-row"><label>Culture</label><div class="bar"><div class="fill" id="score-culture" style="width:0%"></div></div></div>
+                            <div class="score-row"><label>Food</label><div class="bar"><div class="fill" id="score-food" style="width:0%"></div></div></div>
+                            <div class="score-row"><label>Pace</label><div class="bar"><div class="fill" id="score-pace" style="width:0%"></div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Bottom: Live Ticker -->
+        <footer class="app-footer glass-panel">
+            <div class="ticker-label">LIVE <span></span></div>
+            <div class="ticker-wrap">
+                <div class="ticker-content" id="live-ticker">
+                    Waiting for trip data to provide real-time updates...
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <!-- Data Modules -->
+    <script src="js/data/destinations.js"></script>
+    <script src="js/data/activities.js"></script>
+    <script src="js/data/alerts.js"></script>
+    
+    <!-- Engine Modules -->
+    <script src="js/engine/scorer.js"></script>
+    <script src="js/engine/constraints.js"></script>
+    <script src="js/engine/generator.js"></script>
+    
+    <!-- UI Modules -->
+    <script src="js/ui/ticker.js"></script>
+    <script src="js/ui/map.js"></script>
+    <script src="js/ui/widgets.js"></script>
+    <script src="js/ui/itinerary.js"></script>
+    <script src="js/ui/configurator.js"></script>
+    <script src="js/ui/export.js"></script>
+    
+    <!-- Main -->
+    <script src="js/app.js"></script>
+</body>
+</html>
